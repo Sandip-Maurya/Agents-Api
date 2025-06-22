@@ -46,3 +46,34 @@ class GuardResult(BaseModel):
 
     type: Literal["greeting", "error", "proceed"]
     message: str
+
+class VerifyRequest(BaseModel):
+    """
+    Payload to verify whether a user query + dataset combo
+    is allowed by the guard agent.
+    """
+    user_input: str = Field(
+        ...,
+        examples=[
+            "What is the F1 score?",
+            "Generate a SHAP plot for iris."
+        ],
+        description="The user’s natural-language query."
+    )
+    data_set: Literal["digits", "iris", "wine", "breast_cancer"] = Field(
+        ...,
+        description="Which dataset to evaluate (must match one of the supported names)."
+    )
+
+class VerifyResponse(BaseModel):
+    """
+    Indicates whether the guard agent would allow this query.
+    """
+    is_valid: bool = Field(
+        ...,
+        description="True if the guard agent returns type='proceed', else False."
+    )
+    message: str = Field(
+        ...,
+        description="The guard agent’s message (error or greeting or empty)."
+    )

@@ -1,10 +1,10 @@
 # app/main.py
 
 # fastapi import
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 
 # Custom imports
-from app.schema import AskRequest, AskResponse
+from app.schema import AskRequest, AskResponse, VerifyRequest, VerifyResponse
 from app.utils import extract_tool_info
 from app.agents import guard_agent, model_agent
 from app.handlers import ExceptionAndLoggingHandler
@@ -88,3 +88,35 @@ async def ask(req: AskRequest):
         tool_used=tool_used,
         tool_output=tool_output,
     )
+
+@app.post(
+    "/verify",
+    response_model=VerifyResponse,
+    summary="Verify a user query",
+    tags=["Guard Validation"],
+    description="""
+Use the guard agent to check whether a given user_input + data_set
+combination is acceptable.  
+- If `is_valid` is `true`, you may safely call `/ask`.  
+- Otherwise, inspect `message` for the guard'ss reason.
+"""
+)
+async def verify(req: VerifyRequest, request: Request):
+    """
+    Runs only the guard agent and returns its verdict.
+    """
+    try:
+        guard_out = await guard_agent.run(
+            user_prompt=req.user_input,
+        )
+
+        guard = guard_out.output
+        is_valid = (guard.type == "proceed")
+
+        return VerifyResponse(is_valid=is_valid, message=guard.message)
+    
+    except Exception as e:
+        logger.exception("Verification failed")
+        # Turn any agent‐side error into a 502 Bad Gateway
+        raise HTTPException(status_code=502, detail=f"Verification failed: {str(e)}")
+
