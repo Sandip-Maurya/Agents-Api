@@ -100,5 +100,6 @@ def mcp_shap_summary_tool(data_dir: str) -> str:
 
 if __name__ == "__main__":
     mcp.run(
-        transport='streamable-http'
+        transport='streamable-http',
+        port=8001,
     )

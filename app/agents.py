@@ -18,9 +18,10 @@ logger = logging.getLogger(__name__)
 
 
 try:
+    mcp_server_url = "http://localhost:8001/mcp/" # Change it if your MCP server is hosted elsewhere
+    # Ensure the MCP server is running before starting this app
     model_name = OpenAIModel("gpt-4o-mini")
-    mcp_server = MCPServerStreamableHTTP("http://localhost:8000/mcp/")
-
+    mcp_server = MCPServerStreamableHTTP(mcp_server_url)
     guard_agent = Agent(
         model_name,
         instructions=guard_instructions,

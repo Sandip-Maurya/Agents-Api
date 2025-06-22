@@ -1,9 +1,7 @@
 # app/main.py
 
-# fastapi imports
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import RequestValidationError
+# fastapi import
+from fastapi import FastAPI
 
 # Custom imports
 from app.schema import AskRequest, AskResponse
